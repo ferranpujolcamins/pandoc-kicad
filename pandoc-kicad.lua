@@ -8,20 +8,14 @@ local function file_exists(name)
     end
 end
 
-local function get_file_name(url)
-  return url:match("^.+/(.+)%..+$")
-end
-
-local function get_file_extension(url)
-  return url:match("^.+(%..+)$")
-end
-
 function Link(el)
     if not file_exists(el.target) then
         return nil
     end
 
-    local file_extension = get_file_extension(el.target)
+    local file_path,file_extension = pandoc.path.split_extension(el.target)
+    local file_name = table.remove(pandoc.path.split(file_path))
+
     local file_type
     local export_options
     if file_extension == ".kicad_sch" then
@@ -35,8 +29,6 @@ function Link(el)
     end
     -- TODO: support for sym and fp files
 
-
-    local fileName = get_file_name(el.target)
     local outputPath = "/home/ferran/Development/pandoc-kicad/"
 
     local args = {file_type, "export", "svg", "-o", outputPath, el.target}
@@ -45,5 +37,5 @@ function Link(el)
     end
 
     pandoc.pipe("kicad-cli", args, "")
-    return pandoc.Image(el.content, outputPath .. fileName .. ".svg", fileName, el.attr)
+    return pandoc.Image(el.content, outputPath .. file_name .. ".svg", file_name, el.attr)
 end
