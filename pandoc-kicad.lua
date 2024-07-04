@@ -15,6 +15,8 @@ function Link(el)
 
     local file_path,file_extension = pandoc.path.split_extension(el.target)
     local file_name = table.remove(pandoc.path.split(file_path))
+    local output_path = pandoc.path.directory(PANDOC_STATE.output_file) .. pandoc.path.separator
+
 
     local file_type
     local export_options
@@ -29,13 +31,11 @@ function Link(el)
     end
     -- TODO: support for sym and fp files
 
-    local outputPath = "/home/ferran/Development/pandoc-kicad/"
-
-    local args = {file_type, "export", "svg", "-o", outputPath, el.target}
+    local args = {file_type, "export", "svg", "-o", output_path, el.target}
     for _, a in ipairs(export_options) do
       table.insert(args, a)
     end
 
     pandoc.pipe("kicad-cli", args, "")
-    return pandoc.Image(el.content, outputPath .. file_name .. ".svg", file_name, el.attr)
+    return pandoc.Image(el.content, file_name .. ".svg", file_name, el.attr)
 end
